@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./cloud_sql_proxy -instances="insta-port:us-central1:library"=tcp:3306
