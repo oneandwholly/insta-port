@@ -17,53 +17,53 @@ const getRequest = require(`@google-cloud/nodejs-repo-tools`).getRequest;
 const test = require(`ava`);
 
 module.exports = (DATA_BACKEND) => {
-  let originalDataBackend, id, testConfig, appConfig;
+  // let originalDataBackend, id, testConfig, appConfig;
 
-  test.before(() => {
-    testConfig = require(`./_test-config`);
-    appConfig = require(`../config`);
-    originalDataBackend = appConfig.get(`DATA_BACKEND`);
-    appConfig.set(`DATA_BACKEND`, DATA_BACKEND);
-  });
+  // test.before(() => {
+  //   testConfig = require(`./_test-config`);
+  //   appConfig = require(`../config`);
+  //   originalDataBackend = appConfig.get(`DATA_BACKEND`);
+  //   appConfig.set(`DATA_BACKEND`, DATA_BACKEND);
+  // });
 
-  test.serial.cb(`should create a book`, (t) => {
-    getRequest(testConfig)
-      .post(`/api/books`)
-      .send({ title: `beep` })
-      .expect(200)
-      .expect((response) => {
-        id = response.body.id;
-        t.truthy(response.body.id);
-        t.is(response.body.title, `beep`);
-      })
-      .end(t.end);
-  });
+  // test.serial.cb(`should create a book`, (t) => {
+  //   getRequest(testConfig)
+  //     .post(`/api/books`)
+  //     .send({ title: `beep` })
+  //     .expect(200)
+  //     .expect((response) => {
+  //       id = response.body.id;
+  //       t.truthy(response.body.id);
+  //       t.is(response.body.title, `beep`);
+  //     })
+  //     .end(t.end);
+  // });
 
-  test.serial.cb(`should list books`, (t) => {
-    // Give Datastore time to become consistent
-    setTimeout(() => {
-      getRequest(testConfig)
-        .get(`/api/books`)
-        .expect(200)
-        .expect((response) => {
-          t.true(Array.isArray(response.body.items));
-          t.true(response.body.items.length >= 1);
-        })
-        .end(t.end);
-    }, 1000);
-  });
+  // test.serial.cb(`should list books`, (t) => {
+  //   // Give Datastore time to become consistent
+  //   setTimeout(() => {
+  //     getRequest(testConfig)
+  //       .get(`/api/books`)
+  //       .expect(200)
+  //       .expect((response) => {
+  //         t.true(Array.isArray(response.body.items));
+  //         t.true(response.body.items.length >= 1);
+  //       })
+  //       .end(t.end);
+  //   }, 1000);
+  // });
 
-  test.serial.cb(`should delete a book`, (t) => {
-    getRequest(testConfig)
-      .delete(`/api/books/${id}/`)
-      // .expect(200)
-      .expect((response) => {
-        t.is(response.text, `OK`);
-      })
-      .end(t.end);
-  });
+  // test.serial.cb(`should delete a book`, (t) => {
+  //   getRequest(testConfig)
+  //     .delete(`/api/books/${id}/`)
+  //     // .expect(200)
+  //     .expect((response) => {
+  //       t.is(response.text, `OK`);
+  //     })
+  //     .end(t.end);
+  // });
 
-  test.always.after(() => {
-    appConfig.set(`DATA_BACKEND`, originalDataBackend);
-  });
+  // test.always.after(() => {
+  //   appConfig.set(`DATA_BACKEND`, originalDataBackend);
+  // });
 };

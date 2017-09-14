@@ -19,10 +19,25 @@ const config = require('./config');
 
 const app = express();
 
+
 app.disable('etag');
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 app.set('trust proxy', true);
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+// Auth
+app.use('/api/auth', require('./auth/api'));
+
+// Users
+app.use('/api/users', require('./users/api'));
+
+// Photos
+app.use('/api/photos', require('./photos/api'));
+
+// Comments
 
 // Books
 app.use('/books', require('./books/crud'));

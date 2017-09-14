@@ -1,0 +1,1 @@
+export const ROOT_URL = 'https://insta-777.appspot.com';

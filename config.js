@@ -32,7 +32,8 @@ nconf
     'MYSQL_USER',
     'MYSQL_PASSWORD',
     'NODE_ENV',
-    'PORT'
+    'PORT',
+    'JWT_SECRET'
   ])
   // 3. Config file
   .file({ file: path.join(__dirname, 'config.json') })

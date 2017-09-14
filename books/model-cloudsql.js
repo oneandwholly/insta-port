@@ -117,20 +117,26 @@ function createSchema (config) {
   }, config));
 
   connection.query(
-    `CREATE DATABASE IF NOT EXISTS \`bookshelf\`
+    `CREATE DATABASE IF NOT EXISTS \`instaclone\`
       DEFAULT CHARACTER SET = 'utf8'
       DEFAULT COLLATE 'utf8_general_ci';
-    USE \`bookshelf\`;
-    CREATE TABLE IF NOT EXISTS \`bookshelf\`.\`books\` (
-      \`id\` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      \`title\` VARCHAR(255) NULL,
-      \`author\` VARCHAR(255) NULL,
-      \`publishedDate\` VARCHAR(255) NULL,
-      \`imageUrl\` VARCHAR(255) NULL,
-      \`description\` TEXT NULL,
-      \`createdBy\` VARCHAR(255) NULL,
-      \`createdById\` VARCHAR(255) NULL,
-    PRIMARY KEY (\`id\`));`,
+    USE \`instaclone\`;
+    CREATE TABLE IF NOT EXISTS \`instaclone\`.\`users\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`username\` VARCHAR(255) NOT NULL,
+      \`email\` VARCHAR(255) NOT NULL,
+      \`password\` VARCHAR(255) NOT NULL,
+      \`isPrivate\` TINYINT(1) DEFAULT 0 NOT NULL,
+      \`createdAt\` TIMESTAMP DEFAULT NOW() NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS \`instaclone\`.\`photos\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`img_url\` VARCHAR(255) NOT NULL,
+      \`caption\` VARCHAR(255),
+      \`user_id\` INT NOT NULL,
+      \`createdAt\` TIMESTAMP DEFAULT NOW() NOT NULL,
+      FOREIGN KEY(\`user_id\`) REFERENCES \`users\`(\`id\`)
+    );`,
     (err) => {
       if (err) {
         throw err;
@@ -140,3 +146,22 @@ function createSchema (config) {
     }
   );
 }
+
+
+// CREATE TABLE users (
+//   id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+//   username VARCHAR(255) NOT NULL UNIQUE,
+//   email VARCHAR(255) NOT NULL UNIQUE,
+//   password VARCHAR(255) NOT NULL,
+//   isPrivate TINYINT(1) DEFAULT 0 NOT NULL,
+//   created_at TIMESTAMP DEFAULT NOW()
+// );
+
+// CREATE TABLE photos (
+//   id INT AUTO_INCREMENT PRIMARY KEY,
+//   img_url VARCHAR(255) NOT NULL,
+//   user_id INT NOT NULL,
+//   caption VARCHAR(255),
+//   created_at TIMESTAMP DEFAULT NOW(),
+//   FOREIGN KEY(user_id) REFERENCES users(id)
+// );

@@ -19,62 +19,62 @@ const sinon = require(`sinon`);
 const test = require(`ava`);
 const utils = require(`@google-cloud/nodejs-repo-tools`);
 
-test.cb(`should redirect / to /books`, (t) => {
-  utils.getRequest(testConfig)
-    .get(`/`)
-    .expect(302)
-    .expect((response) => {
-      t.regex(response.text, /Redirecting to \/books/);
-    })
-    .end(t.end);
-});
+// test.cb(`should redirect / to /books`, (t) => {
+//   utils.getRequest(testConfig)
+//     .get(`/`)
+//     .expect(302)
+//     .expect((response) => {
+//       t.regex(response.text, /Redirecting to \/books/);
+//     })
+//     .end(t.end);
+// });
 
-test(`should check config`, (t) => {
-  const nconfMock = {
-    argv: sinon.stub().returnsThis(),
-    env: sinon.stub().returnsThis(),
-    file: sinon.stub().returnsThis(),
-    defaults: sinon.stub().returnsThis(),
-    get: function (setting) {
-      return this[setting];
-    }
-  };
+// test(`should check config`, (t) => {
+//   const nconfMock = {
+//     argv: sinon.stub().returnsThis(),
+//     env: sinon.stub().returnsThis(),
+//     file: sinon.stub().returnsThis(),
+//     defaults: sinon.stub().returnsThis(),
+//     get: function (setting) {
+//       return this[setting];
+//     }
+//   };
 
-  function getMsg (setting) {
-    return `You must set ${setting} as an environment variable or in config.json!`;
-  }
+//   function getMsg (setting) {
+//     return `You must set ${setting} as an environment variable or in config.json!`;
+//   }
 
-  const testFunc = () => {
-    proxyquire(`../config`, { nconf: nconfMock });
-  };
+//   const testFunc = () => {
+//     proxyquire(`../config`, { nconf: nconfMock });
+//   };
 
-  nconfMock.DATA_BACKEND = `datastore`;
+//   nconfMock.DATA_BACKEND = `datastore`;
 
-  t.throws(testFunc, Error, getMsg(`GCLOUD_PROJECT`));
-  nconfMock.GCLOUD_PROJECT = `project`;
+//   t.throws(testFunc, Error, getMsg(`GCLOUD_PROJECT`));
+//   nconfMock.GCLOUD_PROJECT = `project`;
 
-  t.throws(testFunc, Error, getMsg(`CLOUD_BUCKET`));
-  nconfMock.CLOUD_BUCKET = `bucket`;
+//   t.throws(testFunc, Error, getMsg(`CLOUD_BUCKET`));
+//   nconfMock.CLOUD_BUCKET = `bucket`;
 
-  t.notThrows(testFunc);
+//   t.notThrows(testFunc);
 
-  nconfMock.DATA_BACKEND = `cloudsql`;
+//   nconfMock.DATA_BACKEND = `cloudsql`;
 
-  t.throws(testFunc, Error, getMsg(`MYSQL_USER`));
-  nconfMock.MYSQL_USER = `user`;
+//   t.throws(testFunc, Error, getMsg(`MYSQL_USER`));
+//   nconfMock.MYSQL_USER = `user`;
 
-  t.throws(testFunc, Error, getMsg(`MYSQL_PASSWORD`));
-  nconfMock.MYSQL_PASSWORD = `password`;
+//   t.throws(testFunc, Error, getMsg(`MYSQL_PASSWORD`));
+//   nconfMock.MYSQL_PASSWORD = `password`;
 
-  t.notThrows(testFunc);
+//   t.notThrows(testFunc);
 
-  nconfMock.DATA_BACKEND = `mongodb`;
+//   nconfMock.DATA_BACKEND = `mongodb`;
 
-  t.throws(testFunc, Error, getMsg(`MONGO_URL`));
-  nconfMock.MONGO_URL = `url`;
+//   t.throws(testFunc, Error, getMsg(`MONGO_URL`));
+//   nconfMock.MONGO_URL = `url`;
 
-  t.throws(testFunc, Error, getMsg(`MONGO_COLLECTION`));
-  nconfMock.MONGO_COLLECTION = `collection`;
+//   t.throws(testFunc, Error, getMsg(`MONGO_COLLECTION`));
+//   nconfMock.MONGO_COLLECTION = `collection`;
 
-  t.notThrows(testFunc);
-});
+//   t.notThrows(testFunc);
+// });
