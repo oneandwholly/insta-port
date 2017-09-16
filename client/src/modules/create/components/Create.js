@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { reduxForm, Field } from 'redux-form';
 import Dropzone from 'react-dropzone';
-import { postPhotos } from '../actions';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import nav from '../../nav';
+import photos from '../../photos';
 
 const FILE_FIELD_NAME = 'files';
 
@@ -83,4 +83,4 @@ const form = reduxForm({
   form: 'simple',
 })(Create);
 
-export default connect((state) => ({authUserId: state.auth.userId}), {postPhotos, setActive: nav.actions.setActive})(form);
+export default connect((state) => ({authUserId: state.auth.userId}), {postPhotos: photos.actions.postPhotos, setActive: nav.actions.setActive})(form);
