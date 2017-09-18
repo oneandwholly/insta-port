@@ -1,6 +1,5 @@
 import auth from '../auth';
 import axios from 'axios';
-import core from '../core';
 import * as u from './actionTypes';
 
 export const addUser = (user) => {

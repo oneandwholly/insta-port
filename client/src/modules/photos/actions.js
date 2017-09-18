@@ -1,4 +1,14 @@
 import axios from 'axios';
+import * as p from './actionTypes';
+
+export const addPhoto = (photo) => {
+    return (dispatch) => {
+        dispatch({
+            type: p.ADD,
+            payload: photo
+        });
+    }
+}
 
 export function postPhotos(data, cb) {
     return function(dispatch) {
@@ -16,8 +26,9 @@ export function postPhotos(data, cb) {
         };
         return axios.post(`${window.location.protocol}//${window.location.host}/api/photos`, body, config)
         .then(res => {
-          console.log(res)
-          cb();
+            const photo = res.data;
+            dispatch(addPhoto(photo));
+            cb();
         })
     }
   }

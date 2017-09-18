@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as a from './actionTypes';
-import core from '../core';
 
 export const authError = (error) =>
     ({

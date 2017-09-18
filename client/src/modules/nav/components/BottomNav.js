@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
+import { createSelector } from 'reselect';
 import { selectBottomNav } from '../selectors';
 import styled from 'styled-components';
 import BottomNavItem from './BottomNavItem';
+import auth from '../../auth';
+import users from '../../users';
 
 import home_icon  from '../../../assets/icons/home-o.png';
 import explore_icon  from '../../../assets/icons/search-o.png';
@@ -27,7 +29,7 @@ class BottomNav extends Component {
                         <BottomNavItem name='explore' path='/' icon={explore_icon} activeIcon={explore_icon_active} />
                         <BottomNavItem name='create' path='/create/post' icon={create_icon} activeIcon={create_icon_active} />
                         <BottomNavItem name='activity' path='/' icon={activity_icon} activeIcon={activity_icon_active} />
-                        <BottomNavItem name='profile' path='/' icon={profile_icon} activeIcon={profile_icon_active} />
+                        <BottomNavItem name='profile' path={`/${this.props.authUsername}`} icon={profile_icon} activeIcon={profile_icon_active} />
                     </FixedDiv>
                 </ParentDiv>
             );
@@ -55,7 +57,16 @@ const FixedDiv = styled.div`
 `;
 
 export default connect(
-    createStructuredSelector({
-        visibility: selectBottomNav
-    })
+    createSelector(
+        selectBottomNav,
+        auth.selectors.selectUserId,
+        users.selectors.selectById,
+        (visibility, authUserId, usersById) => {
+            let authUsername = '';
+            if (authUserId) {
+                authUsername = usersById[authUserId].username;
+            }
+            return { visibility, authUsername };
+        }
+    )
 )(BottomNav);
