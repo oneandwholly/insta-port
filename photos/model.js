@@ -16,20 +16,20 @@ if (config.get('INSTANCE_CONNECTION_NAME') && config.get('NODE_ENV') === 'produc
 
 const connection = mysql.createConnection(options);
 
-// function list (limit, token, cb) {
-//   token = token ? parseInt(token, 10) : 0;
-//   connection.query(
-//     'SELECT * FROM `books` LIMIT ? OFFSET ?', [limit, token],
-//     (err, results) => {
-//       if (err) {
-//         cb(err);
-//         return;
-//       }
-//       const hasMore = results.length === limit ? token + results.length : false;
-//       cb(null, results, hasMore);
-//     }
-//   );
-// }
+function list (limit, token, cb) {
+  token = token ? parseInt(token, 10) : 0;
+  connection.query(
+    'SELECT * FROM `photos` LIMIT ? OFFSET ?', [limit, token],
+    (err, results) => {
+      if (err) {
+        cb(err);
+        return;
+      }
+      const hasMore = results.length === limit ? token + results.length : false;
+      cb(null, results, hasMore);
+    }
+  );
+}
 
 function create (data, cb) {
   connection.query('INSERT INTO `photos` SET ?', data, (err, res) => {
@@ -74,7 +74,7 @@ function _delete (id, cb) {
 }
 
 module.exports = {
-  //list: list,
+  list: list,
   create: create,
   read: read,
   update: update,

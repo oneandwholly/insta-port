@@ -44,6 +44,26 @@ router.post(
   // [END]
 
 /**
+ * GET /api/photos
+ * 
+ * query: username
+ *
+ * Fetch an array of photos by username (up to ten at a time).
+ */
+router.get('/', (req, res, next) => {
+  Photo.list(2, req.query.pageToken, (err, entities, cursor) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.json({
+      photos: entities,
+      nextPageToken: cursor
+    });
+  });
+});
+
+/**
  * Errors on "/api/photos/*" routes.
  */
 router.use((err, req, res, next) => {
