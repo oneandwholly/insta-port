@@ -27,9 +27,8 @@ router.post(
       // Was an image uploaded? If so, we'll use its public URL
       // in cloud storage.
       if (req.file && req.file.cloudStoragePublicUrl) {
-        data.img_url = req.file.cloudStoragePublicUrl;
+        data.image_url = req.file.cloudStoragePublicUrl;
       }
-      console.log('this is data', data);
   
       // Save the data to the database.
       Photo.create(data, (err, savedData) => {
