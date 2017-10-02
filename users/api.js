@@ -51,11 +51,7 @@ router.get('/self', requireAuth, (req, res, next) => {
   
       res.json(self);
     })
-
   })
-
-  
-
 })
 
 /**
@@ -64,12 +60,35 @@ router.get('/self', requireAuth, (req, res, next) => {
  * Retrieve a user.
  */
 router.get('/:user', (req, res, next) => {
-    User.read(req.params.user, (err, entity) => {
+    User.read(req.params.user, (err, user) => {
       if (err) {
         next(err);
         return;
       }
-      res.json(entity);
+
+      delete user.password;
+
+      user.counts = { photo: null, follows: null, followed_by: null };
+      // get media, follows, followed_by counts
+      Photo.getCountByUserId(user.id, (err, count) => {
+        if (err) {
+          next(err);
+          return;
+        }
+        user.counts.photo = count.photo_count;
+    
+        Follow.getBothCountsByUserId(user.id, (err, counts) => {
+          if (err) {
+            next(err);
+            return;
+          }
+    
+          user.counts.follows = counts.follows_count;
+          user.counts.followed_by = counts.followed_by_count;
+      
+          res.json(user);
+        })
+      })
     });
   });
 
