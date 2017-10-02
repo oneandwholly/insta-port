@@ -40,6 +40,7 @@ export const submitSignup = ({
             })
             .then(res => {
                 const token = res.data.token;
+                console.log(token);
                 localStorage.setItem('token', token);
                 dispatch(loginUser());
             })

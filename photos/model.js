@@ -16,6 +16,20 @@ if (config.get('INSTANCE_CONNECTION_NAME') && config.get('NODE_ENV') === 'produc
 
 const connection = mysql.createConnection(options);
 
+function getCountByUserId (user_id, cb) {
+  connection.query(
+    'SELECT COUNT(*) AS photo_count FROM `photos` where `user_id` = ?', 
+    user_id, 
+    (err, results) => {
+      if (err) {
+        cb(err);
+        return;
+      }
+      cb(null, results[0]);
+    }
+  )
+}
+
 function list (limit, token, cb) {
   token = token ? parseInt(token, 10) : 0;
   connection.query(
@@ -74,6 +88,7 @@ function _delete (id, cb) {
 }
 
 module.exports = {
+  getCountByUserId,
   list: list,
   create: create,
   read: read,
