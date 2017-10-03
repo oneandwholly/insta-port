@@ -55,56 +55,70 @@ router.post(
  *
  * Get information about a photo object.
  */
+
 router.get('/:id', requireAuth, (req, res, next) => {
-  Photo.read(req.params.id, (err, photo) => {
-    if (err) {
-      next(err);
-      return;
-    }
-    photo.tags = [];
-    photo.comments = { count: null };
-    photo.likes = { count: null };
-    photo.user = null;
-    //tags, comment count, likes count, user info
-    Tag.getTagsByPhotoId(photo.id, (err, tags) => {
+
+  let photoPromise = new Promise((resolve, reject) => {
+    Photo.read(req.params.id, (err, photo) => {
       if (err) {
-        next(err);
+        reject(err);
         return;
       }
-      tags.forEach((tag) => {
-        photo.tags.push(tag.tag_name);
-      })
-
-      Comment.getCountByPhotoId(photo.id, (err, count) => {
+      photo.tags = [];
+      photo.comments = { count: null };
+      photo.likes = { count: null };
+      photo.user = null;
+      //tags, comment count, likes count, user info
+      Tag.getTagsByPhotoId(photo.id, (err, tags) => {
         if (err) {
-          next(err);
+          reject(err);
           return;
         }
-        photo.comments.count = count.comment_count;
-        
-        Like.getCountByPhotoId(photo.id, (err, count) => {
+        tags.forEach((tag) => {
+          photo.tags.push(tag.tag_name);
+        })
+  
+        Comment.getCountByPhotoId(photo.id, (err, count) => {
           if (err) {
-            next(err);
+            reject(err);
             return;
           }
-          photo.likes.count = count.like_count;
+          photo.comments.count = count.comment_count;
           
-          User.read(photo.user_id, (err, user) => {
+          Like.getCountByPhotoId(photo.id, (err, count) => {
             if (err) {
-              next(err);
+              reject(err);
               return;
             }
-
-            delete photo.user_id;
-            delete user.password;
-            photo.user = user;
-            res.json(photo)
+            photo.likes.count = count.like_count;
+            
+            User.read(photo.user_id, (err, user) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+  
+              delete photo.user_id;
+              delete user.password;
+              photo.user = user;
+              resolve(photo);
+            })
           })
         })
       })
+      
     })
+  });
+
+  photoPromise.then((photo) => {
+    res.json(photo);
+  }).catch((err) => {
+    next(err);
   })
+
+
 })
+
 
 
 /**

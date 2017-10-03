@@ -93,6 +93,31 @@ router.get('/:user', requireAuth, (req, res, next) => {
   });
 
 /**
+ * GET /api/users/self/photos/recent
+ *
+ * Get the most recent photos of the user.
+ * 
+ * req.query.max_id: return photos earlier than this max_id.
+ */
+
+ router.get('/self/photos/recent', requireAuth, (req, res, next) => {
+  let self = req.user;
+  delete self.password;
+
+  Photo.listByUserId(self.id, 12, req.query.max_id, (err, entities, cursor) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    console.log(entities)
+    res.json({
+      items: entities,
+      hasMore: cursor
+    });
+  });
+ });
+
+/**
  * Errors on "/api/users/*" routes.
  */
 router.use((err, req, res, next) => {

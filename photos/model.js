@@ -16,6 +16,21 @@ if (config.get('INSTANCE_CONNECTION_NAME') && config.get('NODE_ENV') === 'produc
 
 const connection = mysql.createConnection(options);
 
+function listByUserId (user_id, limit, max_id, cb) {
+  max_id = max_id ? parseInt(max_id, 10) : 5000;
+  connection.query(
+    'SELECT * FROM `photos` WHERE `id`< ? AND `user_id`= ? ORDER BY `created_time` DESC LIMIT ?', [max_id, user_id, limit],
+    (err, results) => {
+      if (err) {
+        cb(err);
+        return;
+      }
+      const hasMore = results.length === limit ? true : false;
+      cb(null, results, hasMore);
+    }
+  );
+}
+
 function getCountByUserId (user_id, cb) {
   connection.query(
     'SELECT COUNT(*) AS photo_count FROM `photos` where `user_id` = ?', 
@@ -87,7 +102,9 @@ function _delete (id, cb) {
   connection.query('DELETE FROM `photos` WHERE `id` = ?', id, cb);
 }
 
+
 module.exports = {
+  listByUserId,
   getCountByUserId,
   list: list,
   create: create,
