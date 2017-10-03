@@ -17,7 +17,7 @@ if (config.get('INSTANCE_CONNECTION_NAME') && config.get('NODE_ENV') === 'produc
 const connection = mysql.createConnection(options);
 
 function listByUserId (user_id, limit, max_id, cb) {
-  max_id = max_id ? parseInt(max_id, 10) : 5000;
+  max_id = max_id ? parseInt(max_id, 10) : 2147483648;
   connection.query(
     'SELECT * FROM `photos` WHERE `id`< ? AND `user_id`= ? ORDER BY `created_time` DESC LIMIT ?', [max_id, user_id, limit],
     (err, results) => {

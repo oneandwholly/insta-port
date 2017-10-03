@@ -2,9 +2,13 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+
 const User = require('./model');
 const Photo = require('../photos/model');
-const Follow = require('../follows/model');
+const Tag = require('../tags/model');
+const Comment = require('../comments/model');
+const Like = require('../likes/model');
+
 const jwt = require('jwt-simple');
 const config = require('../config');
 
@@ -59,8 +63,8 @@ router.get('/self', requireAuth, (req, res, next) => {
  *
  * Retrieve a user.
  */
-router.get('/:user', requireAuth, (req, res, next) => {
-    User.read(req.params.user, (err, user) => {
+router.get('/:id', requireAuth, (req, res, next) => {
+    User.read(req.params.id, (err, user) => {
       if (err) {
         next(err);
         return;
@@ -109,13 +113,190 @@ router.get('/:user', requireAuth, (req, res, next) => {
       next(err);
       return;
     }
-    console.log(entities)
+
+    if (entities.length > 0) {
+      let entitiesPromises = entities.map((photo) => {
+        let photoPromise = new Promise((resolve, reject) => {
+          
+            photo.tags = [];
+            photo.comments = { count: null };
+            photo.likes = { count: null };
+            photo.user = null;
+            //tags, comment count, likes count, user info
+            Tag.getTagsByPhotoId(photo.id, (err, tags) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              tags.forEach((tag) => {
+                photo.tags.push(tag.tag_name);
+              })
+        
+              Comment.getCountByPhotoId(photo.id, (err, count) => {
+                if (err) {
+                  reject(err);
+                  return;
+                }
+                photo.comments.count = count.comment_count;
+                
+                Like.getCountByPhotoId(photo.id, (err, count) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  photo.likes.count = count.like_count;
+                  
+                  User.read(photo.user_id, (err, user) => {
+                    if (err) {
+                      reject(err);
+                      return;
+                    }
+        
+                    delete photo.user_id;
+                    delete user.password;
+                    photo.user = user;
+                    console.log(photo)
+                    resolve(photo);
+                  })
+                })
+              })
+            })
+
+        });
+
+        return photoPromise;
+      })
+
+      let allPromises = Promise.all(entitiesPromises).then((values) => {
+        console.log('values', values)
+        res.json({
+          items: values,
+          hasMore: cursor
+        });
+      }).catch((err) => {
+        console.log(err)
+        next(err);
+      })
+
+
+      return;
+    }
+
+    
+
     res.json({
       items: entities,
       hasMore: cursor
     });
   });
  });
+
+
+/**
+ * GET /api/users/:id/photos/recent
+ *
+ * Get the most recent photos of a user.
+ * 
+ * req.query.max_id: return photos earlier than this max_id.
+ */
+
+router.get('/:id/photos/recent', requireAuth, (req, res, next) => {
+
+  User.read(req.params.id, (err, user) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    delete user.password;
+    Photo.listByUserId(user.id, 12, req.query.max_id, (err, entities, cursor) => {
+      if (err) {
+        next(err);
+        return;
+      }
+  
+      if (entities.length > 0) {
+        let entitiesPromises = entities.map((photo) => {
+          let photoPromise = new Promise((resolve, reject) => {
+            
+              photo.tags = [];
+              photo.comments = { count: null };
+              photo.likes = { count: null };
+              photo.user = null;
+              //tags, comment count, likes count, user info
+              Tag.getTagsByPhotoId(photo.id, (err, tags) => {
+                if (err) {
+                  reject(err);
+                  return;
+                }
+                tags.forEach((tag) => {
+                  photo.tags.push(tag.tag_name);
+                })
+          
+                Comment.getCountByPhotoId(photo.id, (err, count) => {
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  photo.comments.count = count.comment_count;
+                  
+                  Like.getCountByPhotoId(photo.id, (err, count) => {
+                    if (err) {
+                      reject(err);
+                      return;
+                    }
+                    photo.likes.count = count.like_count;
+                    
+                    User.read(photo.user_id, (err, user) => {
+                      if (err) {
+                        reject(err);
+                        return;
+                      }
+          
+                      delete photo.user_id;
+                      delete user.password;
+                      photo.user = user;
+                      console.log(photo)
+                      resolve(photo);
+                    })
+                  })
+                })
+              })
+  
+          });
+  
+          return photoPromise;
+        })
+  
+        let allPromises = Promise.all(entitiesPromises).then((values) => {
+          console.log('values', values)
+          res.json({
+            items: values,
+            hasMore: cursor
+          });
+        }).catch((err) => {
+          console.log(err)
+          next(err);
+        })
+  
+  
+        return;
+      }
+  
+      
+  
+      res.json({
+        items: entities,
+        hasMore: cursor
+      });
+    });
+
+    
+  });
+
+
+ });
+
 
 /**
  * Errors on "/api/users/*" routes.
