@@ -59,7 +59,7 @@ router.get('/self', requireAuth, (req, res, next) => {
  *
  * Retrieve a user.
  */
-router.get('/:user', (req, res, next) => {
+router.get('/:user', requireAuth, (req, res, next) => {
     User.read(req.params.user, (err, user) => {
       if (err) {
         next(err);
