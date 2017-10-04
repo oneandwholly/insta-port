@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const User = require('./model');
 const Photo = require('../photos/model');
+const Follow = require('../follows/model');
 const Tag = require('../tags/model');
 const Comment = require('../comments/model');
 const Like = require('../likes/model');
@@ -35,14 +36,14 @@ router.use(bodyParser.json());
 router.get('/self', requireAuth, (req, res, next) => {
   let self = req.user;
   delete self.password;
-  self.counts = { photo: null, follows: null, followed_by: null };
+  self.counts = { photos: null, follows: null, followed_by: null };
   // get media, follows, followed_by counts
   Photo.getCountByUserId(self.id, (err, count) => {
     if (err) {
       next(err);
       return;
     }
-    self.counts.photo = count.photo_count;
+    self.counts.photos = count.photo_count;
 
     Follow.getBothCountsByUserId(self.id, (err, counts) => {
       if (err) {
@@ -72,14 +73,14 @@ router.get('/:id', requireAuth, (req, res, next) => {
 
       delete user.password;
 
-      user.counts = { photo: null, follows: null, followed_by: null };
       // get media, follows, followed_by counts
+      user.counts = { photos: null, follows: null, followed_by: null };
       Photo.getCountByUserId(user.id, (err, count) => {
         if (err) {
           next(err);
           return;
         }
-        user.counts.photo = count.photo_count;
+        user.counts.photos = count.photo_count;
     
         Follow.getBothCountsByUserId(user.id, (err, counts) => {
           if (err) {
@@ -155,7 +156,6 @@ router.get('/:id', requireAuth, (req, res, next) => {
                     delete photo.user_id;
                     delete user.password;
                     photo.user = user;
-                    console.log(photo)
                     resolve(photo);
                   })
                 })
@@ -168,13 +168,11 @@ router.get('/:id', requireAuth, (req, res, next) => {
       })
 
       let allPromises = Promise.all(entitiesPromises).then((values) => {
-        console.log('values', values)
         res.json({
-          items: values,
+          photos: values,
           hasMore: cursor
         });
       }).catch((err) => {
-        console.log(err)
         next(err);
       })
 
@@ -185,7 +183,7 @@ router.get('/:id', requireAuth, (req, res, next) => {
     
 
     res.json({
-      items: entities,
+      photos: entities,
       hasMore: cursor
     });
   });
@@ -199,7 +197,6 @@ router.get('/:id', requireAuth, (req, res, next) => {
  * 
  * req.query.max_id: return photos earlier than this max_id.
  */
-
 router.get('/:id/photos/recent', requireAuth, (req, res, next) => {
 
   User.read(req.params.id, (err, user) => {
@@ -256,7 +253,6 @@ router.get('/:id/photos/recent', requireAuth, (req, res, next) => {
                       delete photo.user_id;
                       delete user.password;
                       photo.user = user;
-                      console.log(photo)
                       resolve(photo);
                     })
                   })
@@ -269,13 +265,11 @@ router.get('/:id/photos/recent', requireAuth, (req, res, next) => {
         })
   
         let allPromises = Promise.all(entitiesPromises).then((values) => {
-          console.log('values', values)
           res.json({
-            items: values,
+            photos: values,
             hasMore: cursor
           });
         }).catch((err) => {
-          console.log(err)
           next(err);
         })
   
@@ -286,17 +280,49 @@ router.get('/:id/photos/recent', requireAuth, (req, res, next) => {
       
   
       res.json({
-        items: entities,
+        photos: entities,
         hasMore: cursor
       });
     });
-
-    
   });
-
-
  });
 
+
+/**
+ * GET /api/users/self/follows
+ *
+ * Get the list of users this user follows.
+ * 
+ * req.query.max_id: return rows earlier than this max_id.
+ */
+router.get('/self/follows', requireAuth, (req, res, next) => {
+  Follow.getFolloweesByUserId(req.user.id, (err, users) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json({data: users});
+  })
+});
+
+/**
+ * GET /api/users/self/followed_by
+ *
+ * Get the list of users this user is followed by.
+ * 
+ * req.query.max_id: return rows earlier than this max_id.
+ */
+router.get('/self/followed_by', requireAuth, (req, res, next) => {
+  Follow.getFollowersByUserId(req.user.id, (err, users) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json({data: users});
+  })
+});
 
 /**
  * Errors on "/api/users/*" routes.

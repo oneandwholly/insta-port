@@ -15,6 +15,29 @@ if (config.get('INSTANCE_CONNECTION_NAME') && config.get('NODE_ENV') === 'produc
 
 const connection = mysql.createConnection(options);
 
+
+function getFolloweesByUserId (user_id, cb) {
+  connection.query(`SELECT id, username, email, users.created_time FROM follows INNER JOIN users ON followee_id=id WHERE follower_id=${user_id} ORDER BY follows.created_time DESC`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, results);
+  })
+}
+
+function getFollowersByUserId (user_id, cb) {
+  connection.query(`SELECT id, username, email, users.created_time FROM follows INNER JOIN users ON follower_id=id WHERE followee_id=${user_id} ORDER BY follows.created_time DESC`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, results);
+  })
+}
+
 function getFollowsCountByUserId (user_id, cb) {
 
 }
@@ -41,6 +64,8 @@ function getBothCountsByUserId (user_id, cb) {
 }
 
 module.exports = {
+    getFolloweesByUserId,
+    getFollowersByUserId,
     getFollowedByCountByUserId,
     getFollowedByCountByUserId,
     getBothCountsByUserId
