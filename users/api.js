@@ -324,6 +324,37 @@ router.get('/self/followed_by', requireAuth, (req, res, next) => {
   })
 });
 
+router.get('/:id/relationship', requireAuth, (req, res, next) => {
+  let self_id = req.user.id;
+  let user_id = req.params.id;
+  
+  Follow.read(self_id, user_id, (err, follow) => {
+    // outgoing_status: Your relationship to the user. Can be 'follows', 'none'.
+    let outgoing_status = 'none';
+
+    if (follow.length > 0 ) {
+      outgoing_status = 'follows';
+    }
+    Follow.read(user_id, self_id, (err, follow) => {
+      // incoming_status: A user's relationship to you. Can be 'followed_by', 'none'.
+      let incoming_status = 'none';
+
+      if (follow.length > 0 ) {
+        incoming_status = 'followed_by';
+      }
+
+      res.json({ outgoing_status, incoming_status });
+    })
+  })
+});
+
+router.post('/users/:id/relationship', requireAuth, (req, res, next) => {
+  let self_id = req.user.id;
+  let user_id = req.params.id;
+
+
+});
+
 /**
  * Errors on "/api/users/*" routes.
  */

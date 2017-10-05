@@ -63,10 +63,22 @@ function getBothCountsByUserId (user_id, cb) {
         });
 }
 
+function read (follower_id, followee_id, cb) {
+  connection.query(`SELECT * FROM follows WHERE follower_id=${follower_id} AND followee_id=${followee_id}`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, results);
+  })
+}
+
 module.exports = {
     getFolloweesByUserId,
     getFollowersByUserId,
     getFollowedByCountByUserId,
     getFollowedByCountByUserId,
-    getBothCountsByUserId
+    getBothCountsByUserId,
+    read
   };
