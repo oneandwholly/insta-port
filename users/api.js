@@ -302,7 +302,7 @@ router.get('/self/follows', requireAuth, (req, res, next) => {
       return;
     }
 
-    res.json({data: users});
+    res.json(users);
   })
 });
 
@@ -320,7 +320,7 @@ router.get('/self/followed_by', requireAuth, (req, res, next) => {
       return;
     }
 
-    res.json({data: users});
+    res.json(users);
   })
 });
 
@@ -348,11 +348,29 @@ router.get('/:id/relationship', requireAuth, (req, res, next) => {
   })
 });
 
-router.post('/users/:id/relationship', requireAuth, (req, res, next) => {
-  let self_id = req.user.id;
-  let user_id = req.params.id;
+router.post('/:id/relationship', requireAuth, (req, res, next) => {
+  let follower_id = req.user.id;
+  let followee_id = req.params.id;
 
+  if (req.query.action === 'follow') {
+    Follow.create(follower_id, followee_id, (err, results) => {
+      if (err) {
+        next(err);
+        return;
+      }
 
+      res.json({ outgoing_status: 'follows' });
+    })
+  } else if (req.query.action === 'unfollow') {
+    Follow.delete(follower_id, followee_id, (err, results) => {
+      if (err) {
+        next(err);
+        return;
+      }
+
+      res.json({ outgoing_status: 'none' });
+    })
+  }
 });
 
 /**

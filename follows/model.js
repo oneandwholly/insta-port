@@ -74,11 +74,35 @@ function read (follower_id, followee_id, cb) {
   })
 }
 
+function create (follower_id, followee_id, cb) {
+  connection.query(`INSERT INTO follows (follower_id, followee_id) VALUES (${follower_id}, ${followee_id})`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, results);
+  })
+}
+
+function _delete (follower_id, followee_id, cb) {
+  connection.query(`DELETE FROM follows WHERE follower_id=${follower_id} AND followee_id=${followee_id}`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+
+    cb(null, results);
+  })
+}
+
 module.exports = {
     getFolloweesByUserId,
     getFollowersByUserId,
     getFollowedByCountByUserId,
     getFollowedByCountByUserId,
     getBothCountsByUserId,
-    read
+    read,
+    create,
+    delete: _delete
   };
