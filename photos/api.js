@@ -119,6 +119,38 @@ router.get('/:id', requireAuth, (req, res, next) => {
 
 })
 
+router.get('/:photo_id/comments', requireAuth, (req, res, next) => {
+  Comment.list(req.params.photo_id, (err, comments) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json(comments);
+  })
+})
+
+router.post('/:photo_id/comments', requireAuth, (req, res, next) => {
+  Comment.create(req.user.id, req.params.photo_id, req.query.text, (err, comment) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json(comment);
+  })
+})
+
+router.delete('/:photo_id/comments/:comment_id', requireAuth, (req, res, next) => {
+  Comment.delete(req.params.comment_id, (err, results) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json(results);
+  })
+})
 
 
 /**

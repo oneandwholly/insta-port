@@ -29,6 +29,49 @@ function getCountByPhotoId (photo_id, cb) {
       )
 }
 
+function read (id, cb) {
+  connection.query(`SELECT * FROM comments WHERE id=${id}`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    cb(null, results[0]);
+  })
+}
+
+function create (user_id, photo_id, text, cb) {
+  connection.query(`INSERT INTO comments (user_id, photo_id, text) VALUES (${user_id}, ${photo_id}, '${text}')`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    read(results.insertId, cb)
+  })
+}
+
+function list (photo_id, cb) {
+  connection.query(`SELECT * FROM comments WHERE photo_id=${photo_id}`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    cb(null, results);
+  })
+}
+
+function _delete (id, cb) {
+  connection.query(`DELETE FROM comments WHERE id=${id}`, (err, results) => {
+    if (err) {
+      cb(err);
+      return;
+    }
+    cb(null, results);
+  })
+}
+
 module.exports = {
-    getCountByPhotoId
+  getCountByPhotoId,
+  create,
+  list,
+  delete: _delete
   };
