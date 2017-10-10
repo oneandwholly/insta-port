@@ -152,6 +152,45 @@ router.delete('/:photo_id/comments/:comment_id', requireAuth, (req, res, next) =
   })
 })
 
+router.post('/:photo_id/likes', requireAuth, (req, res, next) => {
+  Like.create(req.user.id, req.params.photo_id, (err, results) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json(results);
+  })
+})
+
+router.delete('/:photo_id/likes', requireAuth, (req, res, next) => {
+  Like.delete(req.user.id, req.params.photo_id, (err, results) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    res.json(results);
+  })
+})
+
+router.get('/:photo_id/relationship', requireAuth, (req, res, next) => {
+  Like.read(req.user.id, req.params.photo_id, (err, results) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    let likedByUser = false;
+
+    if (results) {
+      likedByUser = true;
+    }
+
+    res.json({likedByUser});
+  })
+})
+
 
 /**
  * GET /api/photos

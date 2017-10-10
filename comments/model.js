@@ -50,7 +50,7 @@ function create (user_id, photo_id, text, cb) {
 }
 
 function list (photo_id, cb) {
-  connection.query(`SELECT * FROM comments WHERE photo_id=${photo_id}`, (err, results) => {
+  connection.query(`SELECT comments.id, text, comments.user_id, comments.photo_id, comments.created_time, username FROM comments INNER JOIN users ON comments.user_id=users.id WHERE photo_id=${photo_id} ORDER BY comments.created_time DESC`, (err, results) => {
     if (err) {
       cb(err);
       return;
